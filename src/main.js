@@ -263,9 +263,21 @@ function renderAddStoryForm() {
 
     const formData = new FormData();
     formData.append('description', description);
-    formData.append('photo', base64);
-    formData.append('lat', lat);
-    formData.append('lon', lon);
+
+    if (fileInput.files.length > 0) {
+      formData.append('photo', fileInput.files[0]);
+    } else if (base64) {
+      const blob = dataURLToBlob(base64);
+      formData.append('photo', blob, 'camera-photo.png');
+    } else {
+      alert('Silakan pilih atau ambil foto');
+      return;
+    }
+
+    if (lat && lon) {
+      formData.append('lat', lat);
+      formData.append('lon', lon);
+    }
 
     fetch('https://story-api.dicoding.dev/v1/stories', {
       method: 'POST',
@@ -274,11 +286,137 @@ function renderAddStoryForm() {
     })
       .then(res => res.json())
       .then(data => {
-        alert('Cerita berhasil ditambahkan');
-        location.hash = 'home';
+        if (!data.error) {
+          alert('Cerita berhasil dikirim!');
+          renderHome();
+        } else {
+          alert('Gagal mengirim!');
+        }
       })
-      .catch(err => alert('Gagal menambah cerita: ' + err));
+      .catch(err => alert('Error: ' + err));
   });
+}
+
+function setupMapForLatLon() {
+    const mapContainer = document.getElementById('map');
+  
+    // Inisialisasi peta
+    const map = L.map(mapContainer).setView([-2.5, 117], 4);
+  
+    // Tambahkan dua tile layer sebagai base map
+    const openStreet = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+    });
+  
+    const cartoPositron = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+    });
+  
+    const cartoDark = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a>',
+      subdomains: 'abcd',
+    });
+  
+    // Tambahkan salah satu base map secara default
+    openStreet.addTo(map);
+  
+    // Buat kontrol untuk memilih layer
+    const baseMaps = {
+      "OpenStreetMap": openStreet,
+      "CartoDB Positron": cartoPositron,
+      "CartoDB Dark": cartoDark,
+    };
+  
+    L.control.layers(baseMaps).addTo(map);
+  
+    // Penanda lokasi
+    let marker;
+  
+    // Coba dapatkan lokasi pengguna
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const lat = pos.coords.latitude;
+        const lon = pos.coords.longitude;
+  
+        map.setView([lat, lon], 13);
+  
+        document.getElementById('story-lat').value = lat.toFixed(6);
+        document.getElementById('story-lon').value = lon.toFixed(6);
+  
+        marker = L.marker([lat, lon]).addTo(map).bindPopup(`Lokasi Anda`).openPopup();
+      }, () => {
+        alert('Tidak bisa mendapatkan lokasi.');
+      });
+    }
+  
+    // Tambahkan fitur klik untuk memilih lokasi
+    map.on('click', function (e) {
+      const { lat, lng } = e.latlng;
+  
+      document.getElementById('story-lat').value = lat.toFixed(6);
+      document.getElementById('story-lon').value = lng.toFixed(6);
+  
+      if (marker) {
+        marker.setLatLng([lat, lng]);
+      } else {
+        marker = L.marker([lat, lng]).addTo(map);
+      }
+  
+      marker.bindPopup(`Lokasi dipilih:<br>${lat.toFixed(6)}, ${lng.toFixed(6)}`).openPopup();
+    });
+}
+  
+
+function startCamera() {
+  const video = document.getElementById('video');
+  const container = document.getElementById('camera-container');
+  container.style.display = 'block';
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      video.srcObject = stream;
+      video.play();
+    })
+    .catch(err => alert('Tidak bisa mengakses kamera: ' + err));
+}
+
+function capturePhoto() {
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('canvas');
+  const base64Input = document.getElementById('story-photo-base64');
+
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  const dataURL = canvas.toDataURL('image/png');
+  base64Input.value = dataURL;
+
+  const imgPreview = document.createElement('img');
+  imgPreview.src = dataURL;
+  imgPreview.style.maxWidth = '200px';
+  document.getElementById('camera-container').appendChild(imgPreview);
+
+  const stream = video.srcObject;
+  stream.getTracks().forEach(track => track.stop());
+  video.style.display = 'none';
+}
+
+function triggerFileInput() {
+  document.getElementById('story-photo').click();
+}
+
+function dataURLToBlob(dataURL) {
+  const parts = dataURL.split(';base64,');
+  const contentType = parts[0].split(':')[1];
+  const byteCharacters = atob(parts[1]);
+  const byteArrays = [];
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteArrays.push(byteCharacters.charCodeAt(i));
+  }
+
+  return new Blob([new Uint8Array(byteArrays)], { type: contentType });
 }
 
 // Fungsi untuk logout pengguna
@@ -310,7 +448,6 @@ if ('serviceWorker' in navigator && 'PushManager' in window) {
         });
 
         console.log('Berhasil subscribe:', JSON.stringify(subscription));
-        // Kirim `subscription` ini ke server jika perlu
       }
     })
     .catch(console.error);
@@ -331,7 +468,6 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.error('Service Worker failed:', err));
   });
 }
-
 
 
 window.addNewStory = addNewStory;
