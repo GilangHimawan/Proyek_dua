@@ -1,4 +1,0 @@
-NAMA: Gilang Himawan  
-EMAIL: [gilangx573@gmail.com]  
-GITHUB REPO: https://github.com/GilangHimawan/Proyek_dua  
-URL DEPLOYMENT: https://gilanghimawan.github.io/Proyek_dua  
