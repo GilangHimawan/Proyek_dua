@@ -1,6 +1,7 @@
 import { loginUser, registerUser } from '../presenters/authPresenter.js';
 import { loadStories } from '../presenters/storyPresenter.js';
 import { checkLoginStatus } from '../utils/auth.js';
+import { showLoader, hideLoader} from '../utils/loader.js'
 
 const root = document.getElementById('main-content');
 
@@ -12,9 +13,10 @@ export function renderHome() {
     <div id="stories-list"></div>
     <button id="logout-button" style="display: none;">Logout</button>
   `;
-
+  showLoader();
   loadStories();
   checkLoginStatus();
+  hideLoader();
 
   // Menambahkan event listener untuk tombol "Tambah Cerita"
   document.getElementById('add-story-btn')?.addEventListener('click', () => {
@@ -46,7 +48,11 @@ export function renderLogin() {
     e.preventDefault();
     const email = e.target.email.value;
     const password = e.target.password.value;
+
+
+    showLoader();
     await loginUser(email, password);
+    hideLoader();
   });
 }
 
@@ -70,6 +76,9 @@ export function renderRegister() {
     const name = e.target.name.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
+
+    showLoader();
     await registerUser(name, email, password);
+    hideLoader();
   });
 }
