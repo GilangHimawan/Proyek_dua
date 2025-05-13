@@ -1,34 +1,44 @@
 import { loginUser, registerUser } from '../presenters/authPresenter.js';
 import { loadStories } from '../presenters/storyPresenter.js';
 import { checkLoginStatus } from '../utils/auth.js';
-import { showLoader, hideLoader} from '../utils/loader.js'
+import { showLoader, hideLoader} from '../utils/loader.js';
 
 const root = document.getElementById('main-content');
 
 export function renderHome() {
   if (!root) return;
+
   root.innerHTML = `
     <h2>Home</h2>
-    <button id="add-story-btn" aria-label="Tambah Cerita">Tambah Cerita</button>
+    <button id="add-story-btn">Tambah Cerita</button>
+    <div>
+    <button id="go-to-bookmark">📑 Bookmark</button>
+    </div>
     <div id="stories-list"></div>
     <button id="logout-button" style="display: none;">Logout</button>
   `;
+
   showLoader();
   loadStories();
   checkLoginStatus();
   hideLoader();
 
-  // Menambahkan event listener untuk tombol "Tambah Cerita"
+
   document.getElementById('add-story-btn')?.addEventListener('click', () => {
-    // Mengubah hash menjadi #add untuk menavigasi ke form tambah cerita
     location.hash = '#add';
   });
+  
+  document.getElementById('go-to-bookmark').addEventListener('click', () => {
+  location.hash = '#draft';
+  });
+
 
   document.getElementById('logout-button')?.addEventListener('click', () => {
     localStorage.removeItem('token');
     location.hash = 'login';
   });
 }
+
 
 
 export function renderLogin() {

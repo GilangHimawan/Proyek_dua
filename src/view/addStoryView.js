@@ -1,27 +1,30 @@
 import { setupMapForLatLon } from '../utils/locationMap.js';
 import { startCamera, triggerFileInput, capturePhoto } from '../utils/cameraUtils.js';
 import { dataURLToBlob } from '../utils/dataURLToBlop.js';
+import { saveDraftToDB } from '../utils/dafrtDB.js';
+import { checkLoginStatus } from '../utils/auth.js';
 
 export function addNewStory() {
   const root = document.getElementById('main-content');
+  checkLoginStatus();
   if (!root) {
-    console.error('Elemen dengan ID "main-content" tidak ditemukan');
+    console.error('Element with ID "main-content" not found');
     return;
   }
 
   root.innerHTML = `
-    <h2>Tambah Cerita</h2>
+    <h2>Add Story</h2>
     <form id="story-form">
-      <label>Deskripsi:</label>
+      <label>Description:</label>
       <textarea id="story-description" required></textarea>
 
-      <label>Foto:</label>
-      <button type="button" id="choose-photo">Pilih dari Perangkat</button>
-      <button type="button" id="open-camera">Ambil dari Kamera</button>
+      <label>Photo:</label>
+      <button type="button" id="choose-photo">Choose from Device</button>
+      <button type="button" id="open-camera">Take from Camera</button>
 
       <div id="camera-container" style="display:none;">
         <video id="video" width="320" height="240" autoplay></video>
-        <button type="button" id="capture-btn">Ambil Foto</button>
+        <button type="button" id="capture-btn">Capture Photo</button>
         <canvas id="canvas" style="display:none;"></canvas>
       </div>
 
@@ -31,7 +34,8 @@ export function addNewStory() {
       <input type="hidden" id="story-lon" />
       <div id="map" style="height:300px;margin-top:10px;"></div>
 
-      <button type="submit">Kirim Cerita</button>
+      <button type="submit">Submit Story</button>
+      <button type="button" id="save-draft-btn">Save as Draft</button>
     </form>
   `;
 
@@ -46,7 +50,7 @@ export function addNewStory() {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('Sesi habis, silakan login lagi.');
+      alert('Session expired, please log in again.');
       location.hash = '#login';
       return;
     }
@@ -66,7 +70,7 @@ export function addNewStory() {
       const blob = dataURLToBlob(base64);
       formData.append('photo', blob, 'camera-photo.png');
     } else {
-      alert('Silakan pilih atau ambil foto.');
+      alert('Please choose or take a photo.');
       return;
     }
 
@@ -84,13 +88,35 @@ export function addNewStory() {
 
       const data = await res.json();
       if (!data.error) {
-        alert('Cerita berhasil dikirim!');
+        alert('Story successfully submitted!');
         location.hash = '#home';
       } else {
-        alert(data.message || 'Gagal mengirim!');
+        alert(data.message || 'Failed to submit!');
       }
     } catch (err) {
       alert('Error: ' + err.message);
     }
+  });
+
+  document.getElementById('save-draft-btn').addEventListener('click', async () => {
+    const description = document.getElementById('story-description').value;
+    const base64 = document.getElementById('story-photo-base64').value;
+    const lat = document.getElementById('story-lat').value;
+    const lon = document.getElementById('story-lon').value;
+
+    if (!description) {
+      return alert('Description must be filled out.');
+    }
+
+    await saveDraftToDB({
+      description,
+      base64,
+      lat,
+      lon,
+      createdAt: new Date().toISOString(),
+    });
+
+    alert('Saved as draft!');
+    location.hash = '#home';
   });
 }
