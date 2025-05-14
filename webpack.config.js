@@ -8,22 +8,13 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     clean: true,
-  },
-  devServer: {
-    static: path.resolve(__dirname, 'dist'),
-    port: 3000,
-    open: true,
+    publicPath: '/Proyek_dua/', 
   },
   module: {
     rules: [
       {
         test: /\.css$/i,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: 'babel-loader',
+        use: ['style-loader', 'css-loader'], 
       },
     ],
   },
@@ -33,7 +24,7 @@ module.exports = {
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'public', to: '.' },
+        { from: 'public', to: '.' }, 
       ],
     }),
   ],

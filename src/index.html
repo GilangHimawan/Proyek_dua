@@ -5,20 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SPA Story App</title>
 
-    <!-- Favicon -->
-    <link rel="icon" href="favicon.ico" type="image/x-icon" />
-
-    <!-- Leaflet CSS -->
+    <link rel="icon" href="/Proyek_dua/favicon.ico" type="image/x-icon" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
-    <!-- Aset CSS utama (dibundel oleh Webpack) -->
-    <link rel="stylesheet" href="/src/tampilan.css" />
-
-    <!-- Web App Manifest -->
-    <link rel="manifest" href="manifest.json" />
+    <link rel="manifest" href="/Proyek_dua/manifest.json" />
     <meta name="theme-color" content="#ffffff" />
 
-    <!-- Gaya aksesibilitas & tambahan -->
     <style>
       .skip-link {
         position: absolute;
@@ -39,22 +30,13 @@
         z-index: 100;
       }
 
-      video {
-        max-width: 100%;
-        margin-top: 10px;
-      }
-
-      canvas {
-        display: none;
-      }
-
-      #camera-container {
-        margin-top: 10px;
-      }
+      video { max-width: 100%; margin-top: 10px; }
+      canvas { display: none; }
+      #camera-container { margin-top: 10px; }
     </style>
   </head>
   <body>
-  <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
+    <a href="#main-content" class="skip-link">Lewati ke konten utama</a>
 
     <nav aria-label="Navigasi utama">
       <a href="#home">Home</a>
@@ -62,20 +44,15 @@
       <a href="#register">Register</a>
     </nav>
 
-  <main id="main-content"></main>
+    <main id="main-content"></main>
 
-
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script defer src="/Proyek_dua/bundle.js"></script>
 
-    <!-- Bundel utama dari Webpack -->
-    <script defer src="bundle.js"></script>
-
-    <!-- Registrasi Service Worker -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/service-worker.js')
+          navigator.serviceWorker.register('/Proyek_dua/service-worker.js')
             .then(() => console.log('Service Worker terdaftar'))
             .catch(err => console.error('Gagal daftar Service Worker:', err));
         });
