@@ -5,24 +5,19 @@ export function urlBase64ToUint8Array(base64String) {
   return new Uint8Array([...rawData].map(char => char.charCodeAt(0)));
 }
 
-export function updateGlobalPushButton() {
-  const btn = document.getElementById('subscribe-push-btn');
-  if (!btn) return;
+const VAPID_PUBLIC_KEY = 'BCCs2eonMI-6H2ctvFaWg-UYdDv387Vno_bzUzALpB442r2lCnsHmtrx8biyPi_E-1fSGABK_Qs_GlvPoJJqxbk';
 
-  const isSubscribed = localStorage.getItem('pushSubscribed') === 'true';
-  btn.textContent = isSubscribed ? '🔕 Berhenti Langganan' : '🔔 Aktifkan Notifikasi';
-}
-
-export async function subscribePushNotification(authorId) {
-  const registration = await navigator.serviceWorker.ready;
+export async function subscribePushNotification() {
   const permission = await Notification.requestPermission();
-  if (permission !== 'granted') throw new Error('Izin ditolak');
+  if (permission !== 'granted') {
+    throw new Error('Izin notifikasi ditolak.');
+  }
 
-  const existing = await registration.pushManager.getSubscription();
-  let subscription = existing;
+  const registration = await navigator.serviceWorker.ready;
+  let subscription = await registration.pushManager.getSubscription();
 
   if (!subscription) {
-    const convertedKey = urlBase64ToUint8Array('BCCs2eonMI-6H2ctvFaWg-UYdDv387Vno_bzUzALpB442r2lCnsHmtrx8biyPi_E-1fSGABK_Qs_GlvPoJJqxbk');
+    const convertedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
     subscription = await registration.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: convertedKey,
@@ -32,13 +27,9 @@ export async function subscribePushNotification(authorId) {
   const body = {
     endpoint: subscription.endpoint,
     keys: {
-      p256dh: subscription.getKey('p256dh')
-        ? btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh'))))
-        : '',
-      auth: subscription.getKey('auth')
-        ? btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth'))))
-        : '',
-    }
+      p256dh: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('p256dh')))),
+      auth: btoa(String.fromCharCode(...new Uint8Array(subscription.getKey('auth')))),
+    },
   };
 
   const token = localStorage.getItem('token');
@@ -46,26 +37,27 @@ export async function subscribePushNotification(authorId) {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
   });
 
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message || 'Gagal subscribe');
+  if (!response.ok) {
+    const result = await response.json();
+    throw new Error(result.message || 'Gagal melakukan subscribe');
+  }
 
   localStorage.setItem('pushSubscribed', 'true');
-  updateGlobalPushButton();
 }
 
-export async function unsubscribePushNotification(authorId) {
+export async function unsubscribePushNotification() {
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.getSubscription();
-  const token = localStorage.getItem('token');
 
   if (subscription) {
     await subscription.unsubscribe();
 
+    const token = localStorage.getItem('token');
     const response = await fetch('https://story-api.dicoding.dev/v1/notifications/subscribe', {
       method: 'DELETE',
       headers: {
@@ -75,10 +67,12 @@ export async function unsubscribePushNotification(authorId) {
       body: JSON.stringify({ endpoint: subscription.endpoint }),
     });
 
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.message || 'Gagal unsubscribe');
+    if (!response.ok) {
+      const result = await response.json();
+      throw new Error(result.message || 'Gagal melakukan unsubscribe');
+    }
   }
 
   localStorage.setItem('pushSubscribed', 'false');
-  updateGlobalPushButton();
 }
+

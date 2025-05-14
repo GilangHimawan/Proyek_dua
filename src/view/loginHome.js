@@ -2,6 +2,7 @@ import { loginUser, registerUser } from '../presenters/authPresenter.js';
 import { loadStories } from '../presenters/storyPresenter.js';
 import { checkLoginStatus } from '../utils/auth.js';
 import { showLoader, hideLoader} from '../utils/loader.js';
+import { subscribePushNotification , unsubscribePushNotification } from '../utils/push.js';
 
 const root = document.getElementById('main-content');
 
@@ -12,7 +13,10 @@ export function renderHome() {
     <h2>Home</h2>
     <button id="add-story-btn">Tambah Cerita</button>
     <div>
-    <button id="go-to-bookmark">📑 Bookmark</button>
+      <button id="go-to-bookmark">📑 Bookmark</button>
+    </div>
+    <div>
+      <button id="toggle-notif">Aktifkan Notifikasi</button>
     </div>
     <div id="stories-list"></div>
     <button id="logout-button" style="display: none;">Logout</button>
@@ -23,20 +27,42 @@ export function renderHome() {
   checkLoginStatus();
   hideLoader();
 
-
   document.getElementById('add-story-btn')?.addEventListener('click', () => {
     location.hash = '#add';
   });
-  
-  document.getElementById('go-to-bookmark').addEventListener('click', () => {
-  location.hash = '#draft';
-  });
 
+  document.getElementById('go-to-bookmark')?.addEventListener('click', () => {
+    location.hash = '#draft';
+  });
 
   document.getElementById('logout-button')?.addEventListener('click', () => {
     localStorage.removeItem('token');
-    location.hash = 'login';
+    location.hash = '#login';
   });
+
+  // 🔔 Toggle Notifikasi
+  const toggleBtn = document.getElementById('toggle-notif');
+
+  async function updateToggleButtonText() {
+    const enabled = localStorage.getItem('pushSubscribed') === 'true';
+    toggleBtn.textContent = enabled ? 'Nonaktifkan Notifikasi' : 'Aktifkan Notifikasi';
+  }
+
+  toggleBtn?.addEventListener('click', async () => {
+    try {
+      const enabled = localStorage.getItem('pushSubscribed') === 'true';
+      if (enabled) {
+        await unsubscribePushNotification();
+      } else {
+        await subscribePushNotification();
+      }
+      await updateToggleButtonText();
+    } catch (err) {
+      alert('Gagal mengatur notifikasi: ' + err.message);
+    }
+  });
+
+  updateToggleButtonText();
 }
 
 
