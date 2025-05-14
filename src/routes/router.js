@@ -1,7 +1,7 @@
 import { renderHome, renderLogin, renderRegister } from '../view/loginHome.js';
 import { addNewStory } from '../view/addStoryView.js';
 import { showDraftStories } from '../view/draftStory.js';
-
+import { renderNotFound } from '../view/notFound.js';
 
 export function initRouter() {
   window.addEventListener('hashchange', handleRouteChange);
@@ -9,7 +9,7 @@ export function initRouter() {
 }
 
 function handleRouteChange() {
-  const route = location.hash || 'login';
+  const route = location.hash || '#login';
 
   switch (route) {
     case '#login':
@@ -28,6 +28,6 @@ function handleRouteChange() {
       showDraftStories();
       break;
     default:
-      location.hash = 'login';
+      renderNotFound(); 
   }
 }

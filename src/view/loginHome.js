@@ -80,6 +80,8 @@ export function renderLogin() {
     </form>
   `;
 
+  checkLoginStatus();
+
   document.getElementById('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = e.target.email.value;
