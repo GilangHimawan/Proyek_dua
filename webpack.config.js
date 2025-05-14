@@ -48,12 +48,12 @@ module.exports = {
             cacheName: 'images-cache',
             expiration: {
               maxEntries: 50,
-              maxAgeSeconds: 7 * 24 * 60 * 60, // 7 hari
+              maxAgeSeconds: 7 * 24 * 60 * 60, 
             },
           },
         },
         {
-          urlPattern: ({ url }) => url.origin === 'https://story-api.dicoding.dev',
+          urlPattern: ({ url }) => url.origin === 'https://story-api.dicoding.dev/v1',
           handler: 'NetworkFirst',
           options: {
             cacheName: 'api-cache',
