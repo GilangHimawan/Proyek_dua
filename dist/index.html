@@ -1,0 +1,37 @@
+<!doctype html><html lang="id"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>SPA Story App</title><link rel="icon" href="favicon.ico" type="image/x-icon"/><link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/><link rel="stylesheet" href="/src/tampilan.css"/><link rel="manifest" href="manifest.json"/><meta name="theme-color" content="#ffffff"/><style>.skip-link {
+        position: absolute;
+        left: -999px;
+        top: auto;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+      }
+
+      .skip-link:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        background: #000;
+        color: #fff;
+        padding: 8px;
+        z-index: 100;
+      }
+
+      video {
+        max-width: 100%;
+        margin-top: 10px;
+      }
+
+      canvas {
+        display: none;
+      }
+
+      #camera-container {
+        margin-top: 10px;
+      }</style><script defer="defer" src="bundle.js"></script></head><body><a href="#main-content" class="skip-link">Lewati ke konten utama</a><nav aria-label="Navigasi utama"><a href="#home">Home</a> <a href="#login">Login</a> <a href="#register">Register</a></nav><main id="main-content"></main><script src="https://unpkg.com/leaflet/dist/leaflet.js"></script><script defer="defer" src="bundle.js"></script><script>if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+            .then(() => console.log('Service Worker terdaftar'))
+            .catch(err => console.error('Gagal daftar Service Worker:', err));
+        });
+      }</script></body></html>
