@@ -20,7 +20,6 @@ export async function showDraftStories() {
         <p><strong>Deskripsi:</strong> ${draft.description}</p>
         ${draft.base64 ? `<img src="${draft.base64}" style="max-width: 200px;" alt="Preview Foto" />` : ''}
         <p>Lokasi: Lat ${draft.lat ?? '-'}, Lon ${draft.lon ?? '-'}</p>
-        <button class="restore-draft-btn" data-id="${draft.id}">📝 Edit/Restore</button>
         <button class="send-draft-btn" data-id="${draft.id}">📤 Kirim</button>
         <button class="delete-draft-btn" data-id="${draft.id}">🗑 Hapus</button>
       </div>
@@ -31,16 +30,6 @@ export async function showDraftStories() {
   root.addEventListener('click', async (e) => {
     const sendBtn = e.target.closest('.send-draft-btn');
     const deleteBtn = e.target.closest('.delete-draft-btn');
-    const restoreBtn = e.target.closest('.restore-draft-btn');
-
-    if (restoreBtn) {
-      const id = Number(restoreBtn.dataset.id);
-      const draft = drafts.find(d => d.id === id);
-      if (!draft) return;
-
-      localStorage.setItem('restore-draft', JSON.stringify(draft));
-      location.hash = '#add';
-    }
 
     if (sendBtn) {
       const id = Number(sendBtn.dataset.id);
@@ -94,7 +83,7 @@ export async function showDraftStories() {
     if (deleteBtn) {
       const id = Number(deleteBtn.dataset.id);
       await deleteDraftById(id);
-      location.hash = '#home';
+      showDraftStories();
     }
   });
 

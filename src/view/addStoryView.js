@@ -1,7 +1,7 @@
 import { setupMapForLatLon } from '../utils/locationMap.js';
 import { startCamera, triggerFileInput, capturePhoto } from '../utils/cameraUtils.js';
 import { dataURLToBlob } from '../utils/dataURLToBlop.js';
-import { saveDraftToDB, loadLatestDraft } from '../utils/dafrtDB.js';
+import { saveDraftToDB } from '../utils/dafrtDB.js';
 import { checkLoginStatus } from '../utils/auth.js';
 
 export function addNewStory() {
@@ -39,33 +39,7 @@ export function addNewStory() {
     </form>
   `;
 
-  (async () => {
-    const draft = await loadLatestDraft();
-
-    if (draft) {
-      document.getElementById('story-description').value = draft.description || '';
-
-      if (draft.base64) {
-        const base64Input = document.getElementById('story-photo-base64');
-        base64Input.value = draft.base64;
-
-        const imgPreview = document.createElement('img');
-        imgPreview.src = draft.base64;
-        imgPreview.style.maxWidth = '200px';
-        document.getElementById('camera-container').appendChild(imgPreview);
-      }
-
-      if (draft.lat && draft.lon) {
-        document.getElementById('story-lat').value = draft.lat;
-        document.getElementById('story-lon').value = draft.lon;
-        setupMapForLatLon(parseFloat(draft.lat), parseFloat(draft.lon));
-        return;
-      }
-    }
-
-    // Fallback jika tidak ada draft atau tidak ada koordinat
-    setupMapForLatLon();
-  })();
+  setupMapForLatLon();
 
   document.getElementById('choose-photo').addEventListener('click', triggerFileInput);
   document.getElementById('open-camera').addEventListener('click', startCamera);
