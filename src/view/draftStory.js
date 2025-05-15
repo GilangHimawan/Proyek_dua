@@ -16,7 +16,7 @@ export async function showDraftStories() {
   root.innerHTML = `
     <h2>Draft Cerita</h2>
     ${drafts.map(draft => `
-      <div style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
+      <div class="draft-item" style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
         <p><strong>Deskripsi:</strong> ${draft.description}</p>
         ${draft.base64 ? `<img src="${draft.base64}" style="max-width: 200px;" alt="Preview Foto" />` : ''}
         <p>Lokasi: Lat ${draft.lat ?? '-'}, Lon ${draft.lon ?? '-'}</p>
@@ -32,6 +32,7 @@ export async function showDraftStories() {
     const deleteBtn = e.target.closest('.delete-draft-btn');
 
     if (sendBtn) {
+      sendBtn.disabled = true;
       const id = Number(sendBtn.dataset.id);
       const draft = drafts.find(d => d.id === id);
       if (!draft) return;
@@ -74,16 +75,17 @@ export async function showDraftStories() {
 
         await deleteDraftById(id); 
         alert('Cerita berhasil dikirim!');
-        showDraftStories();
+        showDraftStories(); // Refresh tampilan
       } catch (error) {
         alert('Gagal mengirim cerita: ' + error.message);
+        sendBtn.disabled = false;
       }
     }
 
     if (deleteBtn) {
       const id = Number(deleteBtn.dataset.id);
       await deleteDraftById(id);
-      showDraftStories();
+      showDraftStories(); 
     }
   });
 
