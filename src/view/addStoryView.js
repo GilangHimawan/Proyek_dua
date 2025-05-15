@@ -39,6 +39,29 @@ export function addNewStory() {
     </form>
   `;
 
+const restoreDraftRaw = localStorage.getItem('restore-draft');
+if (restoreDraftRaw) {
+  const restoreDraft = JSON.parse(restoreDraftRaw);
+  document.getElementById('story-description').value = restoreDraft.description || '';
+
+  if (restoreDraft.base64) {
+    const base64Input = document.getElementById('story-photo-base64');
+    base64Input.value = restoreDraft.base64;
+
+    const imgPreview = document.createElement('img');
+    imgPreview.src = restoreDraft.base64;
+    imgPreview.style.maxWidth = '200px';
+    document.getElementById('camera-container').appendChild(imgPreview);
+  }
+
+  if (restoreDraft.lat && restoreDraft.lon) {
+    document.getElementById('story-lat').value = restoreDraft.lat;
+    document.getElementById('story-lon').value = restoreDraft.lon;
+  }
+
+  localStorage.removeItem('restore-draft'); // Bersihkan setelah digunakan
+}
+
   setupMapForLatLon();
 
   document.getElementById('choose-photo').addEventListener('click', triggerFileInput);
@@ -97,6 +120,7 @@ export function addNewStory() {
       alert('Error: ' + err.message);
     }
   });
+
 
   document.getElementById('story-photo').addEventListener('change', function () {
   const file = this.files[0];
