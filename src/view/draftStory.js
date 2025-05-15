@@ -2,8 +2,13 @@ import { getAllDraftsFromDB, deleteDraftById } from '../utils/dafrtDB.js';
 import { checkLoginStatus } from '../utils/auth.js';
 
 export async function showDraftStories() {
-  const root = document.getElementById('main-content');
+  let root = document.getElementById('main-content');
   if (!root) return;
+
+  // 🔁 Bersihkan event listener lama
+  const cleanRoot = root.cloneNode(false);
+  root.replaceWith(cleanRoot);
+  root = cleanRoot;
 
   checkLoginStatus();
   const drafts = await getAllDraftsFromDB();
@@ -75,7 +80,7 @@ export async function showDraftStories() {
 
         await deleteDraftById(id); 
         alert('Cerita berhasil dikirim!');
-        showDraftStories(); // Refresh tampilan
+        await showDraftStories();
       } catch (error) {
         alert('Gagal mengirim cerita: ' + error.message);
         sendBtn.disabled = false;
@@ -85,11 +90,11 @@ export async function showDraftStories() {
     if (deleteBtn) {
       const id = Number(deleteBtn.dataset.id);
       await deleteDraftById(id);
-      showDraftStories(); 
+      await showDraftStories();
     }
   });
 
-  document.getElementById('back-to-home')?.addEventListener('click', () => {
+  root.querySelector('#back-to-home')?.addEventListener('click', () => {
     location.hash = '#home';
   });
 }
