@@ -31,7 +31,6 @@ export async function showDraftStories() {
   root.addEventListener('click', async (e) => {
     const sendBtn = e.target.closest('.send-draft-btn');
     const deleteBtn = e.target.closest('.delete-draft-btn');
-
     const restoreBtn = e.target.closest('.restore-draft-btn');
 
     if (restoreBtn) {
@@ -42,7 +41,6 @@ export async function showDraftStories() {
       localStorage.setItem('restore-draft', JSON.stringify(draft));
       location.hash = '#add';
     }
-
 
     if (sendBtn) {
       const id = Number(sendBtn.dataset.id);
@@ -96,7 +94,7 @@ export async function showDraftStories() {
     if (deleteBtn) {
       const id = Number(deleteBtn.dataset.id);
       await deleteDraftById(id);
-      showDraftStories(); 
+      location.hash = '#home';
     }
   });
 
