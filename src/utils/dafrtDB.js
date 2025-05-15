@@ -60,3 +60,14 @@ export async function deleteDraftById(id) {
     tx.onerror = () => reject(tx.error);
   });
 }
+
+export async function loadLatestDraft() {
+  const db = await openDB('StoryDraftDB', 1);
+  const tx = db.transaction('drafts', 'readonly');
+  const store = tx.objectStore('drafts');
+  const allDrafts = await store.getAll();
+
+  if (allDrafts.length === 0) return null;
+  return allDrafts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+}
+

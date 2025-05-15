@@ -1,7 +1,7 @@
 import { setupMapForLatLon } from '../utils/locationMap.js';
 import { startCamera, triggerFileInput, capturePhoto } from '../utils/cameraUtils.js';
 import { dataURLToBlob } from '../utils/dataURLToBlop.js';
-import { saveDraftToDB } from '../utils/dafrtDB.js';
+import { saveDraftToDB, loadLatestDraft } from '../utils/dafrtDB.js';
 import { checkLoginStatus } from '../utils/auth.js';
 
 export function addNewStory() {
@@ -39,35 +39,33 @@ export function addNewStory() {
     </form>
   `;
 
-  let restoredLat = null;
-  let restoredLon = null;
+  (async () => {
+    const draft = await loadLatestDraft();
 
-  const restoreDraftRaw = localStorage.getItem('restore-draft');
-  if (restoreDraftRaw) {
-    const restoreDraft = JSON.parse(restoreDraftRaw);
-    document.getElementById('story-description').value = restoreDraft.description || '';
+    if (draft) {
+      document.getElementById('story-description').value = draft.description || '';
 
-    if (restoreDraft.base64) {
-      const base64Input = document.getElementById('story-photo-base64');
-      base64Input.value = restoreDraft.base64;
+      if (draft.base64) {
+        const base64Input = document.getElementById('story-photo-base64');
+        base64Input.value = draft.base64;
 
-      const imgPreview = document.createElement('img');
-      imgPreview.src = restoreDraft.base64;
-      imgPreview.style.maxWidth = '200px';
-      document.getElementById('camera-container').appendChild(imgPreview);
+        const imgPreview = document.createElement('img');
+        imgPreview.src = draft.base64;
+        imgPreview.style.maxWidth = '200px';
+        document.getElementById('camera-container').appendChild(imgPreview);
+      }
+
+      if (draft.lat && draft.lon) {
+        document.getElementById('story-lat').value = draft.lat;
+        document.getElementById('story-lon').value = draft.lon;
+        setupMapForLatLon(parseFloat(draft.lat), parseFloat(draft.lon));
+        return;
+      }
     }
 
-    if (restoreDraft.lat && restoreDraft.lon) {
-      document.getElementById('story-lat').value = restoreDraft.lat;
-      document.getElementById('story-lon').value = restoreDraft.lon;
-      restoredLat = restoreDraft.lat;
-      restoredLon = restoreDraft.lon;
-    }
-
-    localStorage.removeItem('restore-draft');
-  }
-
-  setupMapForLatLon(restoredLat, restoredLon);
+    // Fallback jika tidak ada draft atau tidak ada koordinat
+    setupMapForLatLon();
+  })();
 
   document.getElementById('choose-photo').addEventListener('click', triggerFileInput);
   document.getElementById('open-camera').addEventListener('click', startCamera);
