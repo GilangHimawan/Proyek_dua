@@ -98,6 +98,18 @@ export function addNewStory() {
     }
   });
 
+  document.getElementById('story-photo').addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    document.getElementById('story-photo-base64').value = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+
   document.getElementById('save-draft-btn').addEventListener('click', async () => {
     const description = document.getElementById('story-description').value;
     const base64 = document.getElementById('story-photo-base64').value;

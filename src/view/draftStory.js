@@ -18,7 +18,7 @@ export async function showDraftStories() {
     ${drafts.map(draft => `
       <div style="border: 1px solid #ccc; margin-bottom: 10px; padding: 10px;">
         <p><strong>Deskripsi:</strong> ${draft.description}</p>
-        ${draft.photo ? `<img src="${draft.photo}" style="max-width: 200px;" />` : ''}
+        ${draft.base64 ? `<img src="${draft.base64}" style="max-width: 200px;" alt="Preview Foto" />` : ''}
         <p>Lokasi: Lat ${draft.lat ?? '-'}, Lon ${draft.lon ?? '-'}</p>
         <button class="send-draft-btn" data-id="${draft.id}">📤 Kirim</button>
         <button class="delete-draft-btn" data-id="${draft.id}">🗑 Hapus</button>
@@ -38,14 +38,22 @@ export async function showDraftStories() {
 
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Sesi login berakhir. Silakan login kembali.');
+          location.hash = '#login';
+          return;
+        }
+
         const formData = new FormData();
         formData.append('description', draft.description);
-        if (draft.photoBlob) {
-          formData.append('photo', draft.photoBlob, 'photo.jpg');
-        } else if (draft.photo) {
-          const res = await fetch(draft.photo);
-          const blob = await res.blob();
+
+        if (draft.base64) {
+          const response = await fetch(draft.base64);
+          const blob = await response.blob();
           formData.append('photo', blob, 'photo.jpg');
+        } else {
+          alert('Foto tidak ditemukan di draft.');
+          return;
         }
 
         if (draft.lat && draft.lon) {
@@ -72,11 +80,10 @@ export async function showDraftStories() {
       }
     }
 
-    // Hapus draft
     if (deleteBtn) {
       const id = Number(deleteBtn.dataset.id);
       await deleteDraftById(id);
-      showDraftStories();
+      showDraftStories(); 
     }
   });
 
