@@ -41,7 +41,7 @@ export async function getAllDraftsFromDB() {
 }
 
 export async function deleteDraftById(id) {
-  const db = await openDB();
+  const db = await openDraftDB();
   const tx = db.transaction('drafts', 'readwrite');
   const store = tx.objectStore('drafts');
   store.delete(id);
@@ -51,4 +51,5 @@ export async function deleteDraftById(id) {
     tx.onerror = () => reject(tx.error);
   });
 }
+
 

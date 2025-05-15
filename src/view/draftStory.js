@@ -31,7 +31,6 @@ export async function showDraftStories() {
     const sendBtn = e.target.closest('.send-draft-btn');
     const deleteBtn = e.target.closest('.delete-draft-btn');
 
-    // Kirim cerita dari draft
     if (sendBtn) {
       const id = Number(sendBtn.dataset.id);
       const draft = drafts.find(d => d.id === id);
@@ -65,7 +64,7 @@ export async function showDraftStories() {
         const result = await response.json();
         if (!response.ok) throw new Error(result.message || 'Gagal mengirim cerita');
 
-        await deleteDraftById(id); // Hapus setelah berhasil dikirim
+        await deleteDraftById(id); 
         alert('Cerita berhasil dikirim!');
         showDraftStories();
       } catch (error) {
