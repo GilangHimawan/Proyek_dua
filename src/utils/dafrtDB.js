@@ -1,3 +1,6 @@
+import { openDB } from 'idb';
+
+
 const DB_NAME = 'storyDrafts';
 const STORE_NAME = 'drafts';
 
@@ -41,7 +44,7 @@ export async function getAllDraftsFromDB() {
 }
 
 export async function deleteDraftById(id) {
-  const db = await openDraftDB();
+  const db = await openDB();
   const tx = db.transaction('drafts', 'readwrite');
   const store = tx.objectStore('drafts');
   store.delete(id);
@@ -51,5 +54,4 @@ export async function deleteDraftById(id) {
     tx.onerror = () => reject(tx.error);
   });
 }
-
 
