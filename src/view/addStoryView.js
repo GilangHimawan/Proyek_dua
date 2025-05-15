@@ -39,30 +39,35 @@ export function addNewStory() {
     </form>
   `;
 
-const restoreDraftRaw = localStorage.getItem('restore-draft');
-if (restoreDraftRaw) {
-  const restoreDraft = JSON.parse(restoreDraftRaw);
-  document.getElementById('story-description').value = restoreDraft.description || '';
+  let restoredLat = null;
+  let restoredLon = null;
 
-  if (restoreDraft.base64) {
-    const base64Input = document.getElementById('story-photo-base64');
-    base64Input.value = restoreDraft.base64;
+  const restoreDraftRaw = localStorage.getItem('restore-draft');
+  if (restoreDraftRaw) {
+    const restoreDraft = JSON.parse(restoreDraftRaw);
+    document.getElementById('story-description').value = restoreDraft.description || '';
 
-    const imgPreview = document.createElement('img');
-    imgPreview.src = restoreDraft.base64;
-    imgPreview.style.maxWidth = '200px';
-    document.getElementById('camera-container').appendChild(imgPreview);
+    if (restoreDraft.base64) {
+      const base64Input = document.getElementById('story-photo-base64');
+      base64Input.value = restoreDraft.base64;
+
+      const imgPreview = document.createElement('img');
+      imgPreview.src = restoreDraft.base64;
+      imgPreview.style.maxWidth = '200px';
+      document.getElementById('camera-container').appendChild(imgPreview);
+    }
+
+    if (restoreDraft.lat && restoreDraft.lon) {
+      document.getElementById('story-lat').value = restoreDraft.lat;
+      document.getElementById('story-lon').value = restoreDraft.lon;
+      restoredLat = restoreDraft.lat;
+      restoredLon = restoreDraft.lon;
+    }
+
+    localStorage.removeItem('restore-draft');
   }
 
-  if (restoreDraft.lat && restoreDraft.lon) {
-    document.getElementById('story-lat').value = restoreDraft.lat;
-    document.getElementById('story-lon').value = restoreDraft.lon;
-  }
-
-  localStorage.removeItem('restore-draft'); // Bersihkan setelah digunakan
-}
-
-  setupMapForLatLon();
+  setupMapForLatLon(restoredLat, restoredLon);
 
   document.getElementById('choose-photo').addEventListener('click', triggerFileInput);
   document.getElementById('open-camera').addEventListener('click', startCamera);
@@ -121,18 +126,16 @@ if (restoreDraftRaw) {
     }
   });
 
-
   document.getElementById('story-photo').addEventListener('change', function () {
-  const file = this.files[0];
-  if (!file) return;
+    const file = this.files[0];
+    if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    document.getElementById('story-photo-base64').value = e.target.result;
-  };
-  reader.readAsDataURL(file);
-});
-
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      document.getElementById('story-photo-base64').value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 
   document.getElementById('save-draft-btn').addEventListener('click', async () => {
     const description = document.getElementById('story-description').value;

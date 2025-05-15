@@ -34,12 +34,12 @@
   ],
   "screenshots": [
     {
-      "src": "/Proyek_dua/screenshots/mobile.png",
+      "src": "/Proyek_dua/asset/mobile.png",
       "sizes": "360x640",
       "type": "image/png"
     },
     {
-      "src": "/Proyek_dua/screenshots/desktop.png",
+      "src": "/Proyek_dua/asset/desktop.png",
       "sizes": "1280x720",
       "type": "image/png"
     }
